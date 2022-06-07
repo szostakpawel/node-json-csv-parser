@@ -12,7 +12,7 @@ const mapPipedData = map((data: RowObject, callback: Function) => {
   callback(null, strigified);
 });
 
-export const convertFiles = (header: Header, paths: Paths) => {
+export const convertFilesWithJson = (header: Header, paths: Paths) => {
   return new Promise((resolve, reject) => {
     const pathSplitted = paths.in.split("/");
     const fileName = pathSplitted[pathSplitted.length - 1];
@@ -34,8 +34,11 @@ export const convertFiles = (header: Header, paths: Paths) => {
   });
 };
 
-export const convertFilesAlt = (header: Header, paths: Paths) => {
+export const convertFilesWithRegex = (header: Header, paths: Paths) => {
   return new Promise((resolve, reject) => {
+    const pathSplitted = paths.in.split("/");
+    const fileName = pathSplitted[pathSplitted.length - 1];
+
     try {
       const transform = new Transform();
       const reader = createReadStream(paths.in, encoding);
@@ -52,7 +55,7 @@ export const convertFilesAlt = (header: Header, paths: Paths) => {
 
       writer.on("open", () => writer.write(prepareRow(header)));
       writer.on("close", () =>
-        resolve("All files were converted and saved successfully")
+        resolve(`File ${fileName} was successfully converted and saved.`)
       );
 
       reader.pipe(transform).pipe(writer);

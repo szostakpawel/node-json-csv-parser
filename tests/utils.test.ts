@@ -1,17 +1,11 @@
-import { RowObject } from "../src/types";
-
 import {
   prepareRow,
   readDataFiles,
+  isJestRunning,
   getObjectValues,
   stringifyJsonChunk,
 } from "../src/utils";
-
-const testingObject: RowObject = {
-  _id: "29x8afs7230",
-  name: "John",
-  age: 16,
-};
+import { testingObject, testingPaths } from "./resources/testingResources";
 
 describe("Utility functions", () => {
   it("getObjectValues", () => {
@@ -29,11 +23,14 @@ describe("Utility functions", () => {
     expect(row).toEqual("29x8afs7230,John,16" + "\n");
   });
   it("readDataFiles with valid path", async () => {
-    const files = await readDataFiles("./tests/resources");
+    const files = await readDataFiles(testingPaths.in);
     expect(files).toEqual(expect.arrayContaining(["testingJson.json"]));
   });
   it("readDataFiles with invalid path", async () => {
-    const files = await readDataFiles("./tests/r3sourc3s");
+    const files = await readDataFiles("./tests/invalid");
     expect(files).toBeNull();
+  });
+  it("isJestRunning", () => {
+    expect(isJestRunning()).toBeTruthy();
   });
 });

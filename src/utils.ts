@@ -16,6 +16,9 @@ export const readDataFiles = async (
   }
 };
 
+export const isJestRunning = (): boolean =>
+  process.env.JEST_WORKER_ID !== undefined;
+
 export const prepareRow = (array: RowArray): string => {
   return array.join(",") + "\n";
 };

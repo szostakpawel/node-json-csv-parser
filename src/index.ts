@@ -1,6 +1,12 @@
-import { csvDataPath, jsonDataPath, readDataFiles } from "./utils";
-import { convertFiles, convertFilesAlt } from "./jsonToCsv";
+import { convertFilesWithJson, convertFilesWithRegex } from "./jsonToCsv";
+import {
+  csvDataPath,
+  jsonDataPath,
+  readDataFiles,
+  isJestRunning,
+} from "./utils";
 import { existsSync, mkdirSync } from "fs";
+
 const header = [
   "_id",
   "age",
@@ -13,7 +19,7 @@ const header = [
   "address",
 ];
 
-if (!existsSync(csvDataPath)) {
+if (!isJestRunning() && !existsSync(csvDataPath)) {
   mkdirSync(csvDataPath);
 }
 
@@ -31,7 +37,9 @@ const CONVERTION_OPTIONS = {
 const CONVERTION_MODE = CONVERTION_OPTIONS.REGEX;
 
 const convertionFunction =
-  CONVERTION_MODE === CONVERTION_OPTIONS.JSON ? convertFiles : convertFilesAlt;
+  CONVERTION_MODE === CONVERTION_OPTIONS.JSON
+    ? convertFilesWithJson
+    : convertFilesWithRegex;
 
 let seconds = 0;
 let interval: NodeJS.Timer;
