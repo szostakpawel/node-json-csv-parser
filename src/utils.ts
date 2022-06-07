@@ -4,9 +4,11 @@ import { RowArray, RowObject } from "./types";
 export const jsonDataPath = "./src/data/json";
 export const csvDataPath = "./src/data/csv";
 
-export const readDataFiles = async (): Promise<string[] | null> => {
+export const readDataFiles = async (
+  path = jsonDataPath
+): Promise<string[] | null> => {
   try {
-    const files = await readdir(jsonDataPath);
+    const files = await readdir(path);
     return files;
   } catch (error) {
     console.error(error);
