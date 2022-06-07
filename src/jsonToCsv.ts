@@ -34,7 +34,6 @@ export const convertFiles = (header: Header, paths: Paths) => {
   });
 };
 
-// Alternative version with regex
 export const convertFilesAlt = (header: Header, paths: Paths) => {
   return new Promise((resolve, reject) => {
     try {
@@ -51,7 +50,7 @@ export const convertFilesAlt = (header: Header, paths: Paths) => {
         done(null, rows);
       };
 
-      writer.on("open", () => writer.write(header.join(",") + "\n"));
+      writer.on("open", () => writer.write(prepareRow(header)));
       writer.on("close", () =>
         resolve("All files were converted and saved successfully")
       );
