@@ -22,14 +22,14 @@ describe("Converting files", () => {
     file = files[0];
     csv = `${file.split(".json")[0]}.csv`;
   });
-  it("convertFilesWithJson valid", async () => {
+  it("convertFilesWithJson", async () => {
     const promise = convertFilesWithJson(testingHeader, {
       in: `${testingPaths.in}/${file}`,
       out: `${testingPaths.out}/${csv}`,
     });
     await validPromiseExpectations(promise);
   });
-  it("convertFilesWithRegex valid", async () => {
+  it("convertFilesWithRegex", async () => {
     const promise = convertFilesWithRegex(testingHeader, {
       in: `${testingPaths.in}/${file}`,
       out: `${testingPaths.out}/${csv}`,
