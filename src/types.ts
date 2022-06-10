@@ -1,5 +1,3 @@
-export type Header = Array<string>;
-
 export type RowArray = Array<string | number>;
 
 export type RowObject = Record<string, string | number>;

@@ -7,18 +7,6 @@ import {
 } from "./utils";
 import { existsSync, mkdirSync } from "fs";
 
-const header = [
-  "_id",
-  "age",
-  "eyeColor",
-  "name",
-  "gender",
-  "company",
-  "email",
-  "phone",
-  "address",
-];
-
 if (!isJestRunning() && !existsSync(csvDataPath)) {
   mkdirSync(csvDataPath);
 }
@@ -41,13 +29,10 @@ const convertionFunction =
     ? convertFilesWithJson
     : convertFilesWithRegex;
 
-let seconds = 0;
-let interval: NodeJS.Timer;
-const incrementSeconds = () => (seconds += 1);
+console.time("Converting time took");
 
 (async function () {
   const promises = [];
-  interval = setInterval(incrementSeconds, 1000);
   console.log(`Starting in ${CONVERTION_MODE} mode.`);
   try {
     const files = await readDataFiles();
@@ -55,7 +40,7 @@ const incrementSeconds = () => (seconds += 1);
       for (const file of files) {
         const csv = `${file.split(".json")[0]}.csv`;
         promises.push(
-          convertionFunction(header, {
+          convertionFunction(file, {
             in: `${jsonDataPath}/${file}`,
             out: `${csvDataPath}/${csv}`,
           })
@@ -63,12 +48,10 @@ const incrementSeconds = () => (seconds += 1);
       }
       await Promise.all(promises).then(responses => {
         responses.forEach(res => console.log(res));
-        console.log(`Converting files took ${seconds} seconds`);
+        console.timeEnd("Converting time took");
       });
     }
   } catch (error) {
     console.error(error);
-  } finally {
-    clearInterval(interval);
   }
 })();

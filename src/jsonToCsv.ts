@@ -1,6 +1,11 @@
+import {
+  prepareRow,
+  prepareHeader,
+  transformChunk,
+  stringifyJsonChunk,
+} from "./utils";
 import { createReadStream, createWriteStream } from "fs";
-import { stringifyJsonChunk, prepareRow } from "./utils";
-import { Header, Paths, RowObject } from "./types";
+import { Paths, RowObject } from "./types";
 import JSONStream from "jsonstream";
 import { map } from "event-stream";
 import { Transform } from "stream";
@@ -12,16 +17,21 @@ const mapPipedData = map((data: RowObject, callback: Function) => {
   callback(null, strigified);
 });
 
-export const convertFilesWithJson = (header: Header, paths: Paths) => {
+export const convertFilesWithJson = (fileName: string, paths: Paths) => {
   return new Promise((resolve, reject) => {
-    const pathSplitted = paths.in.split("/");
-    const fileName = pathSplitted[pathSplitted.length - 1];
-
     try {
       const reader = createReadStream(paths.in, encoding);
       const writer = createWriteStream(paths.out, encoding);
 
+      let header: Array<string> = [];
+
+      reader.once("data", data => {
+        const dataString = typeof data === "string" ? data : data.toString();
+        header = prepareHeader(dataString);
+      });
+
       writer.on("open", () => writer.write(prepareRow(header)));
+      writer.on("error", error => console.error(error));
       writer.on("close", () =>
         resolve(`File ${fileName} was successfully converted and saved.`)
       );
@@ -34,26 +44,28 @@ export const convertFilesWithJson = (header: Header, paths: Paths) => {
   });
 };
 
-export const convertFilesWithRegex = (header: Header, paths: Paths) => {
+export const convertFilesWithRegex = (fileName: string, paths: Paths) => {
   return new Promise((resolve, reject) => {
-    const pathSplitted = paths.in.split("/");
-    const fileName = pathSplitted[pathSplitted.length - 1];
-
     try {
-      const transform = new Transform();
       const reader = createReadStream(paths.in, encoding);
       const writer = createWriteStream(paths.out, encoding);
 
-      transform._transform = (chunk, _, done) => {
-        const rows = chunk
-          .toString()
-          .replace(/("\w{1,}":)|[\r\n\s{[\]]/g, "")
-          .replace(/},|}/g, "\n");
+      let header: Array<string> = [];
 
-        done(null, rows);
-      };
+      reader.once("data", data => {
+        const dataString = typeof data === "string" ? data : data.toString();
+        header = prepareHeader(dataString);
+      });
+
+      const transform = new Transform({
+        transform(chunk, _, done) {
+          const transformed = transformChunk(chunk);
+          done(null, transformed);
+        },
+      });
 
       writer.on("open", () => writer.write(prepareRow(header)));
+      writer.on("error", error => console.error(error));
       writer.on("close", () =>
         resolve(`File ${fileName} was successfully converted and saved.`)
       );
