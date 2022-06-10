@@ -1,11 +1,7 @@
 import { convertFilesWithJson, convertFilesWithRegex } from "./jsonToCsv";
-import {
-  csvDataPath,
-  jsonDataPath,
-  readDataFiles,
-  isJestRunning,
-} from "./utils";
+import { csvDataPath, jsonDataPath, isJestRunning } from "./utils";
 import { existsSync, mkdirSync } from "fs";
+import { readdir } from "fs/promises";
 
 if (!isJestRunning() && !existsSync(csvDataPath)) {
   mkdirSync(csvDataPath);
@@ -29,13 +25,12 @@ const convertionFunction =
     ? convertFilesWithJson
     : convertFilesWithRegex;
 
-console.time("Converting time took");
-
 (async function () {
   const promises = [];
+  console.time("Converting time took");
   console.log(`Starting in ${CONVERTION_MODE} mode.`);
   try {
-    const files = await readDataFiles();
+    const files = await readdir(jsonDataPath);
     if (files) {
       for (const file of files) {
         const csv = `${file.split(".json")[0]}.csv`;
