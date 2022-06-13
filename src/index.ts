@@ -2,6 +2,7 @@ import { convertFilesWithJson, convertFilesWithRegex } from "./jsonToCsv";
 import { csvDataPath, jsonDataPath, isJestRunning } from "./utils";
 import { existsSync, mkdirSync } from "fs";
 import { readdir } from "fs/promises";
+import { basename } from "path";
 
 if (!isJestRunning() && !existsSync(csvDataPath)) {
   mkdirSync(csvDataPath);
@@ -33,7 +34,7 @@ const convertionFunction =
     const files = await readdir(jsonDataPath);
     if (files) {
       for (const file of files) {
-        const csv = `${file.split(".json")[0]}.csv`;
+        const csv = `${basename(file, ".json")}.csv`;
         promises.push(
           convertionFunction(file, {
             in: `${jsonDataPath}/${file}`,
